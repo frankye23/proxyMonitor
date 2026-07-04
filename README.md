@@ -1,9 +1,6 @@
 # ProxyGlass
 
-macOS 菜单栏代理监控工具，基于 Liquid Glass 设计语言，帮助你快速判断代理是否生效。
-
-<!-- TODO: 添加截图 -->
-<!-- ![ProxyGlass Screenshot](docs/screenshot.png) -->
+macOS 菜单栏代理监控工具，基于 Liquid Glass 设计语言，帮助你快速判断代理是否生效。一键查看代理状态、流量分布、出口 IP、延迟与泄漏检测。
 
 ## 功能
 

@@ -17,7 +17,17 @@ struct SurgeConnection: Sendable, Identifiable {
 }
 
 final class SurgeAPI: Sendable {
-    private let ports: [Int] = [6166, 6167]
+    private let defaultPorts: [Int] = [6166, 6167]
+
+    private var ports: [Int] {
+        let customPort = UserDefaults.standard.integer(forKey: "customSurgePort")
+        return customPort > 0 ? [customPort] : defaultPorts
+    }
+
+    private var host: String {
+        let custom = UserDefaults.standard.string(forKey: "customSurgeHost") ?? ""
+        return custom.isEmpty ? "127.0.0.1" : custom
+    }
 
     func query() async throws -> SurgeInfo? {
         for port in ports {
@@ -39,7 +49,7 @@ final class SurgeAPI: Sendable {
     }
 
     private func queryConnections(port: Int) async throws -> [SurgeConnection]? {
-        let url = URL(string: "http://127.0.0.1:\(port)/v1/connections")!
+        let url = URL(string: "http://\(host):\(port)/v1/connections")!
         let (data, response) = try await URLSession.shared.data(from: url)
         guard let http = response as? HTTPURLResponse, http.statusCode == 200 else { return nil }
         guard let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
@@ -61,7 +71,7 @@ final class SurgeAPI: Sendable {
     }
 
     private func queryGlobal(port: Int) async throws -> SurgeInfo? {
-        let url = URL(string: "http://127.0.0.1:\(port)/v1/global")!
+        let url = URL(string: "http://\(host):\(port)/v1/global")!
         let (data, response) = try await URLSession.shared.data(from: url)
         guard let http = response as? HTTPURLResponse, http.statusCode == 200 else { return nil }
         guard let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any] else { return nil }

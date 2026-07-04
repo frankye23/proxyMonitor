@@ -18,7 +18,17 @@ struct ClashConnection: Sendable, Identifiable {
 }
 
 final class ClashAPI: Sendable {
-    private let ports: [Int] = [9090, 7890, 9097, 1080, 1087]
+    private let defaultPorts: [Int] = [9090, 7890, 9097, 1080, 1087]
+
+    private var ports: [Int] {
+        let customPort = UserDefaults.standard.integer(forKey: "customClashPort")
+        return customPort > 0 ? [customPort] : defaultPorts
+    }
+
+    private var host: String {
+        let custom = UserDefaults.standard.string(forKey: "customClashHost") ?? ""
+        return custom.isEmpty ? "127.0.0.1" : custom
+    }
 
     func query() async throws -> ClashProxyInfo? {
         for port in ports {
@@ -43,7 +53,7 @@ final class ClashAPI: Sendable {
     }
 
     private func queryConnections(port: Int) async throws -> [ClashConnection]? {
-        let url = URL(string: "http://127.0.0.1:\(port)/connections")!
+        let url = URL(string: "http://\(host):\(port)/connections")!
         let (data, response) = try await URLSession.shared.data(from: url)
         guard let http = response as? HTTPURLResponse, http.statusCode == 200 else { return nil }
         guard let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
@@ -67,7 +77,7 @@ final class ClashAPI: Sendable {
     }
 
     private func queryProxies(port: Int) async throws -> ClashProxyInfo? {
-        let url = URL(string: "http://127.0.0.1:\(port)/proxies")!
+        let url = URL(string: "http://\(host):\(port)/proxies")!
         let (data, response) = try await URLSession.shared.data(from: url)
         guard let http = response as? HTTPURLResponse, http.statusCode == 200 else { return nil }
         guard let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
@@ -93,7 +103,7 @@ final class ClashAPI: Sendable {
     }
 
     private func queryConfigs(port: Int) async throws -> ClashProxyInfo? {
-        let url = URL(string: "http://127.0.0.1:\(port)/configs")!
+        let url = URL(string: "http://\(host):\(port)/configs")!
         let (data, response) = try await URLSession.shared.data(from: url)
         guard let http = response as? HTTPURLResponse, http.statusCode == 200 else { return nil }
         guard let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any] else { return nil }

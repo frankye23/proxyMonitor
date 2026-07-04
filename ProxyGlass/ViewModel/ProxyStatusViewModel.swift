@@ -52,6 +52,7 @@ class ProxyStatusViewModel {
     ]
     var dnsLeakDetail: DNSLeakDetail?
     var ipv6LeakDetail: IPv6LeakDetail?
+    var webRTCLeakDetail: WebRTCLeakDetail?
     var trafficVM = TrafficAggregationViewModel()
     var isDetecting: Bool = false
     var detectionTimedOut: Bool = false
@@ -69,6 +70,7 @@ class ProxyStatusViewModel {
     private let dnsLeakTest = DNSLeakTest()
     private let ipv6LeakTest = IPv6LeakTest()
     private let networkMonitor = NetworkMonitor()
+    private let webRTCLeakTest = WebRTCLeakTest()
 
     private var refreshInterval: TimeInterval {
         TimeInterval(UserDefaults.standard.integer(forKey: "refreshInterval").nonZeroOr(30))
@@ -226,19 +228,24 @@ class ProxyStatusViewModel {
             guard let self else { return }
             self.leakResults[.dns] = .testing
             self.leakResults[.ipv6] = .testing
+            self.leakResults[.webrtc] = .testing
 
             async let dnsFull = self.dnsLeakTest.runDetailedCheck()
             async let ipv6Full = self.ipv6LeakTest.checkDetailed(proxyType: self.connectionInfo.proxyType)
+            async let webRTCFull = self.webRTCLeakTest.runDetailedCheck(proxyType: self.connectionInfo.proxyType)
 
             let dnsResult = await dnsFull
             let ipv6Result = await ipv6Full
+            let webRTCResult = await webRTCFull
 
             self.leakResults[.dns] = dnsResult.result
             self.dnsLeakDetail = dnsResult.detail
             self.leakResults[.ipv6] = ipv6Result.hasIPv6Interface ? (ipv6Result.isLeaking ? .fail : (ipv6Result.ipv6Exit != nil ? .pass : .notChecked)) : .notApplicable
             self.ipv6LeakDetail = ipv6Result
+            self.leakResults[.webrtc] = webRTCResult.localIPs.isEmpty ? .notChecked : (self.connectionInfo.proxyType.capturesAllTraffic ? .pass : (webRTCResult.isLeaking ? .fail : .pass))
+            self.webRTCLeakDetail = webRTCResult
 
-            if dnsResult.result == .fail || ipv6Result.isLeaking {
+            if dnsResult.result == .fail || ipv6Result.isLeaking || webRTCResult.isLeaking {
                 if self.connectionState == .connected {
                     self.connectionState = .warning
                 }

@@ -284,6 +284,7 @@ struct AggregatedTrafficView: View {
                 color: leakChipColor(ipv6Result)
             )
         }
+        .frame(maxWidth: .infinity, alignment: .leading)
     }
 
     private func detectionChip(icon: String, text: String, color: Color) -> some View {
@@ -295,8 +296,8 @@ struct AggregatedTrafficView: View {
                 .font(.system(size: 10, weight: .medium))
                 .foregroundStyle(PGStatusColors.textSecondary)
         }
-        .fixedSize()
-        .frame(width: 68, height: 24)
+        .padding(.horizontal, 10)
+        .frame(height: 24)
         .background(
             Capsule()
                 .fill(PGStatusColors.chipBackground)

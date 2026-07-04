@@ -62,7 +62,8 @@ struct StatusPanelView: View {
                             LeakStatusCard(
                                 results: vm.leakResults,
                                 dnsDetail: vm.dnsLeakDetail,
-                                ipv6Detail: vm.ipv6LeakDetail
+                                ipv6Detail: vm.ipv6LeakDetail,
+                                webRTCDetail: vm.webRTCLeakDetail
                             )
                             .opacity(visibleCards >= 3 ? 1 : 0)
                         }

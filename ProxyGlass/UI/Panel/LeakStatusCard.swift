@@ -4,6 +4,7 @@ struct LeakStatusCard: View {
     let results: [LeakCheckType: LeakResult]
     var dnsDetail: DNSLeakDetail?
     var ipv6Detail: IPv6LeakDetail?
+    var webRTCDetail: WebRTCLeakDetail?
 
     @State private var expanded = false
 
@@ -73,6 +74,18 @@ struct LeakStatusCard: View {
                                         .foregroundStyle(ipv6.isLeaking ? PGStatusColors.danger : PGStatusColors.safe)
                                 }
                             }
+                            if let webrtc = webRTCDetail, !webrtc.localIPs.isEmpty {
+                                VStack(alignment: .leading, spacing: 2) {
+                                    Text("本机 IP（WebRTC 可见）：")
+                                        .font(.system(size: 11))
+                                        .foregroundStyle(PGStatusColors.textSecondary)
+                                    ForEach(webrtc.localIPs, id: \.self) { ip in
+                                        Text(ip)
+                                            .font(.system(size: 11, design: .monospaced))
+                                            .foregroundStyle(webrtc.leakingIPs.contains(ip) ? PGStatusColors.danger : PGStatusColors.safe)
+                                    }
+                                }
+                            }
                         }
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .padding(.top, 4)
@@ -84,7 +97,7 @@ struct LeakStatusCard: View {
     }
 
     private var hasDetail: Bool {
-        dnsDetail != nil || (ipv6Detail?.hasIPv6Interface == true)
+        dnsDetail != nil || (ipv6Detail?.hasIPv6Interface == true) || (webRTCDetail?.localIPs.isEmpty == false)
     }
 }
 

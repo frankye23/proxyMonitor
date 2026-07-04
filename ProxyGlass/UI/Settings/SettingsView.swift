@@ -9,6 +9,10 @@ struct SettingsView: View {
     @AppStorage("notifyLeak") private var notifyLeak = true
     @AppStorage("notifyLatency") private var notifyLatency = false
     @AppStorage("latencyThreshold") private var latencyThreshold = 300
+    @AppStorage("customClashHost") private var customClashHost = ""
+    @AppStorage("customClashPort") private var customClashPort = 0
+    @AppStorage("customSurgeHost") private var customSurgeHost = ""
+    @AppStorage("customSurgePort") private var customSurgePort = 0
 
     var body: some View {
         Form {
@@ -23,6 +27,34 @@ struct SettingsView: View {
                     Text("1 分钟").tag(60)
                     Text("5 分钟").tag(300)
                 }
+            }
+
+            Section("API 连接") {
+                LabeledContent("Clash 地址") {
+                    HStack(spacing: 4) {
+                        TextField("127.0.0.1", text: $customClashHost)
+                            .textFieldStyle(.roundedBorder)
+                            .frame(width: 120)
+                        Text(":")
+                        TextField("自动", value: $customClashPort, format: .number)
+                            .textFieldStyle(.roundedBorder)
+                            .frame(width: 55)
+                    }
+                }
+                LabeledContent("Surge 地址") {
+                    HStack(spacing: 4) {
+                        TextField("127.0.0.1", text: $customSurgeHost)
+                            .textFieldStyle(.roundedBorder)
+                            .frame(width: 120)
+                        Text(":")
+                        TextField("自动", value: $customSurgePort, format: .number)
+                            .textFieldStyle(.roundedBorder)
+                            .frame(width: 55)
+                    }
+                }
+                Text("留空则自动扫描常见端口")
+                    .font(.system(size: 11))
+                    .foregroundStyle(PGStatusColors.textSecondary)
             }
 
             Section("菜单栏") {
@@ -44,7 +76,7 @@ struct SettingsView: View {
             }
         }
         .formStyle(.grouped)
-        .frame(width: 400, height: 320)
+        .frame(width: 400, height: 440)
     }
 
     private func setLaunchAtLogin(_ enabled: Bool) {
