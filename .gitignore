@@ -1,0 +1,29 @@
+# Xcode
+build/
+DerivedData/
+*.xcodeproj/xcuserdata/
+*.xcodeproj/project.xcworkspace/xcuserdata/
+*.pbxuser
+*.perspective
+*.perspectivev3
+!default.pbxuser
+!default.perspectivev3
+xcuserdata/
+
+# Swift Package Manager
+.build/
+Packages/
+Package.pins
+Package.resolved
+
+# macOS
+.DS_Store
+*.swp
+*~.nib
+
+# Xcode workspace
+*.xcworkspace
+!*.xcodeproj/project.xcworkspace
+
+# Generated
+ProxyGlass.xcodeproj
